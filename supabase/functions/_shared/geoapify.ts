@@ -1,0 +1,37 @@
+import { Campsite, PlaceInfo } from './types.ts';
+
+export const getPlaceInfo = async (place: string): Promise<PlaceInfo | null> => {
+  const resp = await fetch(`https://api.geoapify.com/v1/geocode/search?name=${place}&apiKey=${Deno.env.get('GEOAPIFY_KEY')}`);
+  if (!resp.ok) {
+    console.error(`Error fetching place info: ${resp.statusText}`);
+    return null;
+  }
+
+  const data = await resp.json();
+  if (data?.features?.length) {
+    return data.features.find((place: PlaceInfo) => place.properties.country_code === 'gb');
+  }
+  return null;
+};
+
+export const getCampsites = async (place: string): Promise<Campsite[] | null> => {
+  const placeInfo = await getPlaceInfo(place);
+  if (!placeInfo) {
+    console.error(`No place info found for: ${place}`);
+    return null;
+  }
+
+  const placeId = placeInfo.properties.place_id;
+  const [lon, lat] = placeInfo.geometry.coordinates;
+  const resp = await fetch(`https://api.geoapify.com/v2/places?categories=camping&filter=place:${placeId}&bias=proximity:${lon},${lat}&apiKey=${Deno.env.get('GEOAPIFY_KEY')}`);
+  if (!resp.ok) {
+    console.error(`Error fetching campsites: ${resp.statusText}`);
+    return null;
+  }
+  
+  const data = await resp.json();
+  if (data?.features?.length) {
+    return data.features;
+  }
+  return null;
+};
