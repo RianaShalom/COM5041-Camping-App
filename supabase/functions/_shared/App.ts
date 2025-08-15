@@ -28,9 +28,9 @@ export class App {
         status: 204,
         headers: {
           'Access-Control-Allow-Origin': `${req.headers.get('origin')}`,
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          'Access-Control-Allow-Credentials': 'true',
+          // 'Access-Control-Allow-Credentials': 'true',
         },
       })
     }
@@ -42,7 +42,7 @@ export class App {
 
       // Set CORS headers on all responses
       response.headers.set('Access-Control-Allow-Origin', `${req.headers.get('origin')}`);
-      response.headers.set('Access-Control-Allow-Credentials', 'true');
+      // response.headers.set('Access-Control-Allow-Credentials', 'true');
       return response;
     }
 

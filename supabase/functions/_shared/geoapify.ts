@@ -30,7 +30,7 @@ export const getCampsites = async (place: string): Promise<Campsite[] | null> =>
   }
   
   const data = await resp.json();
-  if (data?.features?.length) {
+  if (data?.features) {
     return data.features;
   }
   return null;
