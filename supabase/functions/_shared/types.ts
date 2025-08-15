@@ -104,6 +104,14 @@ export interface Campsite {
   };
 }
 
+export interface CampsiteBasicInfo {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  address: string;
+}
+
 export interface PlaceWeather {
   latitude: number;
   longitude: number;

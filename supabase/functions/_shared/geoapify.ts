@@ -1,4 +1,4 @@
-import { Campsite, PlaceInfo } from './types.ts';
+import { Campsite, PlaceInfo, CampsiteBasicInfo } from './types.ts';
 
 export const getPlaceInfo = async (place: string): Promise<PlaceInfo | null> => {
   const resp = await fetch(`https://api.geoapify.com/v1/geocode/search?name=${place}&apiKey=${Deno.env.get('GEOAPIFY_KEY')}`);
@@ -14,7 +14,7 @@ export const getPlaceInfo = async (place: string): Promise<PlaceInfo | null> => 
   return null;
 };
 
-export const getCampsites = async (place: string): Promise<Campsite[] | null> => {
+export const getCampsites = async (place: string): Promise<CampsiteBasicInfo[] | null> => {
   const placeInfo = await getPlaceInfo(place);
   if (!placeInfo) {
     console.error(`No place info found for: ${place}`);
@@ -31,7 +31,16 @@ export const getCampsites = async (place: string): Promise<Campsite[] | null> =>
   
   const data = await resp.json();
   if (data?.features) {
-    return data.features;
+    return data.features.map((cs: Campsite) => {
+      const props = cs.properties;
+      return {
+        id: props.place_id,
+        name: props.name,
+        latitude: props.lat,
+        longitude: props.lon,
+        address: props.address_line2,
+      };
+    });
   }
   return null;
 };
