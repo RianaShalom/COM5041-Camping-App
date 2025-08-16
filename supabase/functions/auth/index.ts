@@ -13,7 +13,7 @@ app.post(  "/auth/login", async (req): Promise<Response> => {
     return response(null, 401, error.message);
   }
 
-  return response({ status: 'Logged in', token: data.session.access_token, id: data.user.id }, 200);
+  return response({ status: 'Logged in', token: data.session.access_token }, 200);
 })
 
 app.post(  "/auth/signup", async (req): Promise<Response> => {
@@ -26,13 +26,13 @@ app.post(  "/auth/signup", async (req): Promise<Response> => {
     return response(null, 400, 'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character');
   }
   
-  const { data, error } =  await getSupabaseClient().auth.signUp({ email, password });
+  const { error } =  await getSupabaseClient().auth.signUp({ email, password });
   if (error) {
     console.error('Error signin in:', error.message);
     return response(null, 401, error.message);
   }
 
-  return response({ status: 'Signed up', email, id: data.user.id  }, 200);
+  return response({ status: 'Signed up', email }, 200);
 });
 
 app.get(  "/auth/logout", async (req): Promise<Response> => {

@@ -39,6 +39,7 @@ export class App {
 
     if (route) {
       const response = await route.handler(req);
+      console.log(`Handling ${req.method} request for ${url.pathname}...`);
 
       // Set CORS headers on all responses
       response.headers.set('Access-Control-Allow-Origin', `${req.headers.get('origin')}`);

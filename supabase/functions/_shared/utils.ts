@@ -1,3 +1,5 @@
+import {Buffer} from "node:buffer";
+
 import { createClient, SupabaseClient } from 'supabase';
 
 export const response = (data: unknown, status: number, statusText?: string): Response => {
@@ -18,10 +20,18 @@ export const getSupabaseClient = (token?: string): SupabaseClient => {
 
 export const getAccessToken = (req: Request): string | null => {
   const access_token = req.headers.get('Authorization');
-
   if (!access_token || access_token === 'Bearer null' || access_token === 'Bearer undefined') {
     console.error('No access token found during logout process');
     return null;
   }
   return access_token;
 }
+
+export const getUserId = (access_token: string): string | null => {
+  try {
+    return JSON.parse(Buffer.from(access_token.split('.')[1], 'base64').toString()).sub;
+  } catch {
+    console.error('No access token found during logout process');
+    return null;
+  }
+};

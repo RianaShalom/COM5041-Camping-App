@@ -112,6 +112,12 @@ export interface CampsiteBasicInfo {
   address: string;
 }
 
+export interface CamperPreferences {
+  camper_id: string;
+  campsite_id: string;
+  created_at: string;
+}
+
 export interface PlaceWeather {
   latitude: number;
   longitude: number;
@@ -127,9 +133,19 @@ export interface PlaceWeather {
     temperature_2m_min: '°C';
   };
   daily: {
-    time: [string, string, string, string, string, string, string];
+    time: [string, string, string, string, string, string, string]; // 1 week
     weather_code: [number, number, number, number, number, number, number];
     temperature_2m_max: [number, number, number, number, number, number, number];
     temperature_2m_min: [number, number, number, number, number, number, number];
   };
+}
+
+export interface WeatherInfo {
+  elevation: number;
+  days: {
+    date: string;
+    weather_code: number;
+    temperature_2m_max: number;
+    temperature_2m_min: number;
+  }[];
 }

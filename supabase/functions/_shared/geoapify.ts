@@ -33,6 +33,10 @@ export const getCampsites = async (place: string): Promise<CampsiteBasicInfo[] |
   if (data?.features) {
     return data.features.map((cs: Campsite) => {
       const props = cs.properties;
+      if (!props.place_id || !props.name || !props.lat || !props.lon) {
+        console.warn('Incomplete campsite data:', props);
+        return null;
+      }
       return {
         id: props.place_id,
         name: props.name,
@@ -40,7 +44,7 @@ export const getCampsites = async (place: string): Promise<CampsiteBasicInfo[] |
         longitude: props.lon,
         address: props.address_line2,
       };
-    });
+    }).filter((cs: CampsiteBasicInfo | null) => cs !== null);
   }
   return null;
 };
