@@ -1,6 +1,6 @@
 import { PlaceWeather, WeatherInfo } from './types.ts';
 
-export const getForecast = async (lat: number, lon: number): Promise<WeatherInfo | null> => {
+export const getForecast = async (id: string, lat: number, lon: number): Promise<WeatherInfo | null> => {
   const resp = await fetch(
     `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min`,
   );
@@ -11,6 +11,7 @@ export const getForecast = async (lat: number, lon: number): Promise<WeatherInfo
   
   const placeWeather: PlaceWeather = await resp.json();
   return  {
+    id,
     elevation: placeWeather.elevation,
     days: placeWeather.daily.time.map((time, index) => ({
       date: time,

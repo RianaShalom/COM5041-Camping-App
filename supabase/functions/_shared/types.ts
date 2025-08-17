@@ -141,6 +141,7 @@ export interface PlaceWeather {
 }
 
 export interface WeatherInfo {
+  id: string;
   elevation: number;
   days: {
     date: string;

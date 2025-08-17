@@ -36,18 +36,18 @@ app.post(  "/auth/signup", async (req): Promise<Response> => {
 });
 
 app.get(  "/auth/logout", async (req): Promise<Response> => {
-  const access_token = getAccessToken(req);
-  if (!access_token) {
+  const accessToken = getAccessToken(req);
+  if (!accessToken) {
     return response(null, 401, 'No access token found');
   }
 
-  const { error } =  await getSupabaseClient(access_token).auth.signOut();
+  const { error } =  await getSupabaseClient(accessToken).auth.signOut();
   if (error) {
     console.error('Error logging out:', error.message);
     return response(null, 401, error.message);
   }
 
-  return response(null, 200, 'Logged out');
+  return response({ status: 'Logged out'}, 200);
 })
 
 Deno.serve((req) => app.handler(req))

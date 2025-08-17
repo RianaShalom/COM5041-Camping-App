@@ -21,16 +21,16 @@ export class App {
 
   public async handler(req: Request): Promise<Response> {
     const url = new URL(req.url)
+    const origin = req.headers.get('origin') || '*';
 
     // Handle CORS preflight request early
     if (req.method === 'OPTIONS') {
       return new Response(null, {
         status: 204,
         headers: {
-          'Access-Control-Allow-Origin': `${req.headers.get('origin')}`,
+          'Access-Control-Allow-Origin': origin,
           'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          // 'Access-Control-Allow-Credentials': 'true',
         },
       })
     }
@@ -42,16 +42,13 @@ export class App {
       console.log(`Handling ${req.method} request for ${url.pathname}...`);
 
       // Set CORS headers on all responses
-      response.headers.set('Access-Control-Allow-Origin', `${req.headers.get('origin')}`);
-      // response.headers.set('Access-Control-Allow-Credentials', 'true');
+      response.headers.set('Access-Control-Allow-Origin', origin);
       return response;
     }
 
     return new Response('Not Found', {
       status: 404,
-      headers: {
-        'Access-Control-Allow-Origin': `${req.headers.get('origin')}`
-      }
+      headers: {'Access-Control-Allow-Origin': origin}
     });
   }
 }

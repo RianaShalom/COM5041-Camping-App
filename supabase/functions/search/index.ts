@@ -13,12 +13,14 @@ app.get('/search', async (req): Promise<Response> => {
   }
   
   console.log(`Searching for ${place}...`);
+  
   const campsites: CampsiteBasicInfo[] | null = await getCampsites(place);
   console.log(`Found ${campsites?.length ?? 'none'} campsites`);
   if (!campsites) {
     console.error('No campsites found for place:', place);
     return response(null, 404, 'Campsites not found');
   }
+  
   return response(campsites, 200);
 })
 

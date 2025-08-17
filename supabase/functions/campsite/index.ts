@@ -1,27 +1,13 @@
 import { App } from '../_shared/App.ts';
-import {response, getSupabaseClient, getAccessToken, getUserId} from '../_shared/utils.ts';
-import {CampsiteBasicInfo, CamperPreferences} from "../_shared/types.ts";
+import {response, getSupabaseClient, getUserIdAndToken } from '../_shared/utils.ts';
+import {CampsiteBasicInfo, CamperPreferences, WeatherInfo} from "../_shared/types.ts";
 import {getForecast} from '../_shared/openMeteo.ts';
 
 const app = new App();
 
-const _getUserIdAndToken = (req: Request): { userId: string | null, accessToken: string | null, message?: string } => {
-  const access_token = getAccessToken(req);
-  if (!access_token) {
-    console.error('No access token found');
-    return {userId: null, accessToken: null, message: 'No access token found'};
-  }
-  const user_id = getUserId(access_token);
-  if (!user_id) {
-    console.error('No user ID found in access token');
-    return {userId: null, accessToken: null, message: 'No user ID found in access token'};
-  }
-  return {userId: user_id, accessToken: access_token};
-}
-
 // add user's campsites
 app.post(  "/campsite", async (req: Request): Promise<Response> => {
-  const { userId, accessToken, message } = _getUserIdAndToken(req);
+  const { userId, accessToken, message } = getUserIdAndToken(req);
   if (!userId || !accessToken) {
     console.error(message);
     return response(null, 401, message || 'Unauthorized');
@@ -63,13 +49,12 @@ app.post(  "/campsite", async (req: Request): Promise<Response> => {
   }
 
   console.log("Campsites added successfully");
-
   return response({status: "Campsites added successfully"}, 200);
 });
 
 // get user's campsites
 app.get(  "/campsite", async (req: Request): Promise<Response> => {
-  const { userId, accessToken, message } = _getUserIdAndToken(req);
+  const { userId, accessToken, message } = getUserIdAndToken(req);
   if (!userId || !accessToken) {
     console.error(message);
     return response(null, 401, message || 'Unauthorized');
@@ -78,7 +63,7 @@ app.get(  "/campsite", async (req: Request): Promise<Response> => {
 
   const { data, error } = await getSupabaseClient(accessToken).from("camper_preferences").select("*").eq("camper_id", userId);
   if (error) {
-    console.log("Error inserting camper preferences", error.message);
+    console.log("Error getting camper preferences", error.message);
     return response(null, 500, error.message);
   }
 
@@ -89,17 +74,17 @@ app.get(  "/campsite", async (req: Request): Promise<Response> => {
   }
   if (!campsites.data || campsites.data.length === 0) {
     console.error('No campsites found for user:', userId);
-    return response(null, 404, 'Campsites not found');
+    return response([], 200);
   }
   
   console.log(`Found ${campsites.data.length} campsites for user ${userId}`);
   
-  const campsitesWeather = await Promise.all(campsites.data.map((c: CampsiteBasicInfo) => getForecast(c.latitude, c.longitude)));
+  const campsitesWeather = await Promise.all(campsites.data.map((c: CampsiteBasicInfo) => getForecast(c.id, c.latitude, c.longitude)));
   
   const campsitesWithWeather = campsites.data.map((camp: CampsiteBasicInfo, i: number) => ({
     ...camp,
-    rating: data[i]?.rating,
-    weather: campsitesWeather[i],
+    rating: data.find((c: CamperPreferences) => c.campsite_id === camp.id)?.rating || null,
+    weather: campsitesWeather.find((w: WeatherInfo) => w.id === camp.id) || null,
   }));
 
   console.log("Campsites retrieved successfully");
@@ -109,7 +94,7 @@ app.get(  "/campsite", async (req: Request): Promise<Response> => {
 
 // update user's campsites
 app.put("/campsite", async (req: Request): Promise<Response> => {
-  const { userId, accessToken, message } = _getUserIdAndToken(req);
+  const { userId, accessToken, message } = getUserIdAndToken(req);
   if (!userId || !accessToken) {
     console.error(message);
     return response(null, 401, message || 'Unauthorized');
@@ -123,9 +108,8 @@ app.put("/campsite", async (req: Request): Promise<Response> => {
   }
   
   console.log(`Running PUT campsite for user ${userId} and campsite ${campsite.id}...`);
-  const { error } = await getSupabaseClient(accessToken).from("camper_preferences",).update(
-    { rating: campsite.rating },
-  ).match({
+  const { error } = await getSupabaseClient(accessToken).from("camper_preferences",).update({ rating: campsite.rating })
+    .match({
     camper_id: userId,
     campsite_id: campsite.id,
   });
@@ -141,7 +125,7 @@ app.put("/campsite", async (req: Request): Promise<Response> => {
 
 // delete user's campsites
 app.delete("/campsite", async (req): Promise<Response> => {
-  const { userId, accessToken, message } = _getUserIdAndToken(req);
+  const { userId, accessToken, message } = getUserIdAndToken(req);
   if (!userId || !accessToken) {
     console.error(message);
     return response(null, 401, message || 'Unauthorized');
