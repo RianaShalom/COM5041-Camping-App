@@ -11,7 +11,7 @@ export const getPlaceInfo = async (place: string): Promise<PlaceInfo | null> => 
 
 	const data = await resp.json();
 	if (data?.features?.length) {
-		return data.features.find((place: PlaceInfo) => place.properties.country_code === 'gb');
+		return data.features.find((place: PlaceInfo) => place.properties.country_code === 'gb') ?? null;
 	}
 	return null;
 };
