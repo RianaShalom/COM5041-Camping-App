@@ -1,155 +1,163 @@
 import { App } from '../_shared/App.ts';
-import {response, getSupabaseClient, getUserIdAndToken } from '../_shared/utils.ts';
-import {CampsiteBasicInfo, CamperPreferences, WeatherInfo} from "../_shared/types.ts";
-import {getForecast} from '../_shared/openMeteo.ts';
+import { getSupabaseClient, getUserIdAndToken, response } from '../_shared/utils.ts';
+import { CamperPreferences, CampsiteBasicInfo, WeatherInfo } from '../_shared/types.ts';
+import { getForecast } from '../_shared/openMeteo.ts';
 
 const app = new App();
 
 // add user's campsites
-app.post(  "/campsite", async (req: Request): Promise<Response> => {
-  const { userId, accessToken, message } = getUserIdAndToken(req);
-  if (!userId || !accessToken) {
-    console.error(message);
-    return response(null, 401, message || 'Unauthorized');
-  }
-  
-  const { campsite } = await req.json();
-  console.log(`Running POST campsite for user ${userId}...`);
-  console.log(`Adding ${campsite.length} campsites...`);
+app.post('/campsite', async (req: Request): Promise<Response> => {
+	const { userId, accessToken, message } = getUserIdAndToken(req);
+	if (!userId || !accessToken) {
+		console.error(message);
+		return response(null, 401, message || 'Unauthorized');
+	}
 
-  if (!campsite.length) {
-    console.error('No campsites provided');
-    return response(null, 400, 'Campsite array is empty');
-  }
+	const { campsite } = await req.json();
+	console.log(`Running POST campsite for user ${userId}...`);
+	console.log(`Adding ${campsite.length} campsites...`);
 
-  const { data, error } = await getSupabaseClient(accessToken).from("campsites")
-    .upsert(campsite.map((cs: CampsiteBasicInfo) => ({
-      id: cs.id,
-      name: cs.name,
-      latitude: cs.latitude,
-      longitude: cs.longitude,
-      address: cs.address,
-  }))).select();
+	if (!campsite.length) {
+		console.error('No campsites provided');
+		return response(null, 400, 'Campsite array is empty');
+	}
 
-  if (error) {
-    console.log("Error inserting campsite", error.message);
-    return response(null, 500, error.message);
-  }
+	const { data, error } = await getSupabaseClient(accessToken).from('campsites')
+		.upsert(campsite.map((cs: CampsiteBasicInfo) => ({
+			id: cs.id,
+			name: cs.name,
+			latitude: cs.latitude,
+			longitude: cs.longitude,
+			address: cs.address,
+		}))).select();
 
-  const resp = await getSupabaseClient(accessToken).from("camper_preferences")
-    .upsert(data.map((cs: CampsiteBasicInfo) => ({
-      camper_id: userId,
-      campsite_id: cs.id,
-      rating: null,
-  })));
+	if (error) {
+		console.log('Error inserting campsite', error.message);
+		return response(null, 500, error.message);
+	}
 
-  if (resp.error) {
-    console.log("Error inserting camper preferences", error.message);
-    return response(null, 500, error.message);
-  }
+	const resp = await getSupabaseClient(accessToken).from('camper_preferences')
+		.upsert(data.map((cs: CampsiteBasicInfo) => ({
+			camper_id: userId,
+			campsite_id: cs.id,
+			rating: null,
+		})));
 
-  console.log("Campsites added successfully");
-  return response({status: "Campsites added successfully"}, 200);
+	if (resp.error) {
+		console.log('Error inserting camper preferences', error.message);
+		return response(null, 500, error.message);
+	}
+
+	console.log('Campsites added successfully');
+	return response({ status: 'Campsites added successfully' }, 200);
 });
 
 // get user's campsites
-app.get(  "/campsite", async (req: Request): Promise<Response> => {
-  const { userId, accessToken, message } = getUserIdAndToken(req);
-  if (!userId || !accessToken) {
-    console.error(message);
-    return response(null, 401, message || 'Unauthorized');
-  }
-  console.log(`Running GET campsite for user ${userId}...`);
+app.get('/campsite', async (req: Request): Promise<Response> => {
+	const { userId, accessToken, message } = getUserIdAndToken(req);
+	if (!userId || !accessToken) {
+		console.error(message);
+		return response(null, 401, message || 'Unauthorized');
+	}
+	console.log(`Running GET campsite for user ${userId}...`);
 
-  const { data, error } = await getSupabaseClient(accessToken).from("camper_preferences").select("*").eq("camper_id", userId);
-  if (error) {
-    console.log("Error getting camper preferences", error.message);
-    return response(null, 500, error.message);
-  }
+	const { data, error } = await getSupabaseClient(accessToken).from('camper_preferences').select('*').eq(
+		'camper_id',
+		userId,
+	);
+	if (error) {
+		console.log('Error getting camper preferences', error.message);
+		return response(null, 500, error.message);
+	}
 
-  const campsites = await getSupabaseClient(accessToken).from("campsites").select("*").in("id", data.map((c: CamperPreferences) => c.campsite_id));
-  if (campsites.error) {
-    console.log("Error fetching campsites", campsites.error.message);
-    return response(null, 500, campsites.error.message);
-  }
-  if (!campsites.data || campsites.data.length === 0) {
-    console.error('No campsites found for user:', userId);
-    return response([], 200);
-  }
-  
-  console.log(`Found ${campsites.data.length} campsites for user ${userId}`);
-  
-  const campsitesWeather = await Promise.all(campsites.data.map((c: CampsiteBasicInfo) => getForecast(c.id, c.latitude, c.longitude)));
-  
-  const campsitesWithWeather = campsites.data.map((camp: CampsiteBasicInfo, i: number) => ({
-    ...camp,
-    rating: data.find((c: CamperPreferences) => c.campsite_id === camp.id)?.rating || null,
-    weather: campsitesWeather.find((w: WeatherInfo) => w.id === camp.id) || null,
-  }));
+	const campsites = await getSupabaseClient(accessToken).from('campsites').select('*').in(
+		'id',
+		data.map((c: CamperPreferences) => c.campsite_id),
+	);
+	if (campsites.error) {
+		console.log('Error fetching campsites', campsites.error.message);
+		return response(null, 500, campsites.error.message);
+	}
+	if (!campsites.data || campsites.data.length === 0) {
+		console.error('No campsites found for user:', userId);
+		return response([], 200);
+	}
 
-  console.log("Campsites retrieved successfully");
+	console.log(`Found ${campsites.data.length} campsites for user ${userId}`);
 
-  return response(campsitesWithWeather, 200);
+	const campsitesWeather = await Promise.all(
+		campsites.data.map((c: CampsiteBasicInfo) => getForecast(c.id, c.latitude, c.longitude)),
+	);
+
+	const campsitesWithWeather = campsites.data.map((camp: CampsiteBasicInfo, i: number) => ({
+		...camp,
+		rating: data.find((c: CamperPreferences) => c.campsite_id === camp.id)?.rating || null,
+		weather: campsitesWeather.find((w: WeatherInfo) => w.id === camp.id) || null,
+	}));
+
+	console.log('Campsites retrieved successfully');
+
+	return response(campsitesWithWeather, 200);
 });
 
 // update user's campsites
-app.put("/campsite", async (req: Request): Promise<Response> => {
-  const { userId, accessToken, message } = getUserIdAndToken(req);
-  if (!userId || !accessToken) {
-    console.error(message);
-    return response(null, 401, message || 'Unauthorized');
-  }
-  console.log(`Running PUT campsite for user ${userId}...`);
+app.put('/campsite', async (req: Request): Promise<Response> => {
+	const { userId, accessToken, message } = getUserIdAndToken(req);
+	if (!userId || !accessToken) {
+		console.error(message);
+		return response(null, 401, message || 'Unauthorized');
+	}
+	console.log(`Running PUT campsite for user ${userId}...`);
 
-  const campsite = await req.json();
-  if (!campsite || !campsite.id || !campsite.rating) {
-    console.error('Invalid campsite data provided');
-    return response(null, 400, 'Campsite data is invalid');
-  }
-  
-  console.log(`Running PUT campsite for user ${userId} and campsite ${campsite.id}...`);
-  const { error } = await getSupabaseClient(accessToken).from("camper_preferences",).update({ rating: campsite.rating })
-    .match({
-    camper_id: userId,
-    campsite_id: campsite.id,
-  });
-  if (error) {
-    console.log("Error updating camper preferences", error.message);
-    return response(null, 500, error.message);
-  }
+	const campsite = await req.json();
+	if (!campsite || !campsite.id || !campsite.rating) {
+		console.error('Invalid campsite data provided');
+		return response(null, 400, 'Campsite data is invalid');
+	}
 
-  console.log("Campsite updated successfully");
+	console.log(`Running PUT campsite for user ${userId} and campsite ${campsite.id}...`);
+	const { error } = await getSupabaseClient(accessToken).from('camper_preferences').update({ rating: campsite.rating })
+		.match({
+			camper_id: userId,
+			campsite_id: campsite.id,
+		});
+	if (error) {
+		console.log('Error updating camper preferences', error.message);
+		return response(null, 500, error.message);
+	}
 
-  return response({status: "Campsite updated successfully"}, 200);
+	console.log('Campsite updated successfully');
+
+	return response({ status: 'Campsite updated successfully' }, 200);
 });
 
 // delete user's campsites
-app.delete("/campsite", async (req): Promise<Response> => {
-  const { userId, accessToken, message } = getUserIdAndToken(req);
-  if (!userId || !accessToken) {
-    console.error(message);
-    return response(null, 401, message || 'Unauthorized');
-  }
-  console.log(`Running DELETE campsite for user ${userId}...`);
+app.delete('/campsite', async (req): Promise<Response> => {
+	const { userId, accessToken, message } = getUserIdAndToken(req);
+	if (!userId || !accessToken) {
+		console.error(message);
+		return response(null, 401, message || 'Unauthorized');
+	}
+	console.log(`Running DELETE campsite for user ${userId}...`);
 
-  const campsiteId = new URLSearchParams(req.url.split('?')[1]).get('id');
-  if (!campsiteId) {
-    console.error('Invalid campsite data provided');
-    return response(null, 400, 'Campsite data is invalid');
-  }
+	const campsiteId = new URLSearchParams(req.url.split('?')[1]).get('id');
+	if (!campsiteId) {
+		console.error('Invalid campsite data provided');
+		return response(null, 400, 'Campsite data is invalid');
+	}
 
-  const { error } = await getSupabaseClient(accessToken).from("camper_preferences",).delete().match({
-    camper_id: userId,
-    campsite_id: campsiteId,
-  });
-  if (error) {
-    console.log("Error deleting camper preferences", error.message);
-    return response(null, 500, error.message);
-  }
+	const { error } = await getSupabaseClient(accessToken).from('camper_preferences').delete().match({
+		camper_id: userId,
+		campsite_id: campsiteId,
+	});
+	if (error) {
+		console.log('Error deleting camper preferences', error.message);
+		return response(null, 500, error.message);
+	}
 
-  console.log("Campsite deleted successfully");
+	console.log('Campsite deleted successfully');
 
-  return response({status: "Campsite deleted successfully"}, 200);
+	return response({ status: 'Campsite deleted successfully' }, 200);
 });
 
-Deno.serve((req) => app.handler(req))
+Deno.serve((req) => app.handler(req));
