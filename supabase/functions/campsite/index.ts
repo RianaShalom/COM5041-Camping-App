@@ -89,7 +89,7 @@ app.get('/campsite', async (req: Request): Promise<Response> => {
 		campsites.data.map((c: CampsiteBasicInfo) => getForecast(c.id, c.latitude, c.longitude)),
 	);
 
-	const campsitesWithWeather = campsites.data.map((camp: CampsiteBasicInfo, i: number) => ({
+	const campsitesWithWeather = campsites.data.map((camp: CampsiteBasicInfo) => ({
 		...camp,
 		rating: data.find((c: CamperPreferences) => c.campsite_id === camp.id)?.rating || null,
 		weather: campsitesWeather.find((w: WeatherInfo) => w.id === camp.id) || null,
