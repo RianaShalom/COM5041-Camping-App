@@ -13,9 +13,10 @@ describe('getPlaceInfo', () => {
         ]
       })
     }) as Response;
-    (globalThis as any).Deno = { env: { get: () => 'fake-key' } };
+    
     // act
     const result = await getPlaceInfo('London');
+    
     // assert
     expect(result).not.toBeNull();
     expect(result?.properties.country_code).toBe('gb');
@@ -24,8 +25,10 @@ describe('getPlaceInfo', () => {
   it('returns null if fetch fails', async () => {
     // arrange
     globalThis.fetch = async () => ({ ok: false, statusText: 'Not Found' }) as Response;
+    
     // act
     const result = await getPlaceInfo('Unknown');
+    
     // assert
     expect(result).toBeNull();
   });
@@ -40,8 +43,10 @@ describe('getPlaceInfo', () => {
         ]
       })
     }) as Response;
+    
     // act
     const result = await getPlaceInfo('Paris');
+    
     // assert
     expect(result).toBeNull();
   });
@@ -71,9 +76,10 @@ describe('getCampsites', () => {
         })
       } as Response;
     };
-    (globalThis as any).Deno = { env: { get: () => 'fake-key' } };
+    
     // act
     const result = await getCampsites('London');
+    
     // assert
     expect(result).toHaveLength(2);
     expect(result?.[0]?.name).toBe('Camp 1');
@@ -85,8 +91,10 @@ describe('getCampsites', () => {
       ok: true,
       json: async () => ({ features: [] })
     }) as Response;
+    
     // act
     const result = await getCampsites('Unknown');
+    
     // assert
     expect(result).toBeNull();
   });
@@ -114,9 +122,10 @@ describe('getCampsites', () => {
         })
       } as Response;
     };
-    (globalThis as any).Deno = { env: { get: () => 'fake-key' } };
+    
     // act
     const result = await getCampsites('London');
+    
     // assert
     expect(result).toHaveLength(1);
     expect(result?.[0]?.name).toBe('Camp 1');

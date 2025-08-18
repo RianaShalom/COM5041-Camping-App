@@ -5,7 +5,7 @@ import { CampsiteBasicInfo } from '../_shared/types.ts';
 
 const app = new App();
 
-app.get('/search', async (req): Promise<Response> => {
+app.get('/search', async (req: Request): Promise<Response> => {
 	const place = new URLSearchParams(req.url.split('?')[1]).get('place');
 	if (!place) {
 		console.error('No place provided');
@@ -24,4 +24,5 @@ app.get('/search', async (req): Promise<Response> => {
 	return response(campsites, 200);
 });
 
-Deno.serve((req) => app.handler(req));
+export const handler = (req: Request) => app.handler(req);
+Deno.serve(handler);

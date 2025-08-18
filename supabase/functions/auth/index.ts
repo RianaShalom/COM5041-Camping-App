@@ -3,7 +3,7 @@ import { getAccessToken, getSupabaseClient, response } from '../_shared/utils.ts
 
 const app = new App();
 
-app.post('/auth/login', async (req): Promise<Response> => {
+app.post('/auth/login', async (req: Request): Promise<Response> => {
 	const { email, password } = await req.json();
 	console.log(`Logging ${email}...`);
 
@@ -16,7 +16,7 @@ app.post('/auth/login', async (req): Promise<Response> => {
 	return response({ status: 'Logged in', token: data.session.access_token }, 200);
 });
 
-app.post('/auth/signup', async (req): Promise<Response> => {
+app.post('/auth/signup', async (req: Request): Promise<Response> => {
 	const { email, password } = await req.json();
 	console.log(`Signin up ${email}...`);
 
@@ -39,7 +39,7 @@ app.post('/auth/signup', async (req): Promise<Response> => {
 	return response({ status: 'Signed up', email }, 200);
 });
 
-app.get('/auth/logout', async (req): Promise<Response> => {
+app.get('/auth/logout', async (req: Request): Promise<Response> => {
 	const accessToken = getAccessToken(req);
 	if (!accessToken) {
 		return response(null, 401, 'No access token found');
@@ -54,4 +54,5 @@ app.get('/auth/logout', async (req): Promise<Response> => {
 	return response({ status: 'Logged out' }, 200);
 });
 
-Deno.serve((req) => app.handler(req));
+export const handler = (req: Request) => app.handler(req);
+Deno.serve(handler);

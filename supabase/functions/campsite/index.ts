@@ -132,7 +132,7 @@ app.put('/campsite', async (req: Request): Promise<Response> => {
 });
 
 // delete user's campsites
-app.delete('/campsite', async (req): Promise<Response> => {
+app.delete('/campsite', async (req: Request): Promise<Response> => {
 	const { userId, accessToken, message } = getUserIdAndToken(req);
 	if (!userId || !accessToken) {
 		console.error(message);
@@ -160,4 +160,5 @@ app.delete('/campsite', async (req): Promise<Response> => {
 	return response({ status: 'Campsite deleted successfully' }, 200);
 });
 
-Deno.serve((req) => app.handler(req));
+export const handler = (req: Request) => app.handler(req);
+Deno.serve(handler);
