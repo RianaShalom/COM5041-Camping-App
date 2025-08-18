@@ -256,13 +256,7 @@ await fetch('https://hnxfgutvgswxxvzctxto.supabase.co/functions/v1/campsite?id=c
   method: 'DELETE',
   headers: {
     'Authorization': 'Bearer <token>',
-  },
-  body: JSON.stringify({
-    campsite: [{
-      id: "campsite-1",
-      rating: 3, // rating from 1 to 5
-    }],
-  }),
+  }
 })
 ```
 
