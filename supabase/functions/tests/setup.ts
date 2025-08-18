@@ -1,4 +1,4 @@
 (globalThis as any).Deno = {
-  serve: () => {},
-  env: { get: () => 'fake-key' },
+	serve: () => {},
+	env: { get: () => 'fake-key' },
 };
