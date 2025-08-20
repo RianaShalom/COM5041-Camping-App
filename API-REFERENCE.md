@@ -119,9 +119,9 @@ Example response:
 <br><br>
 
 ## User's Campsites
-| APIs      | Method | Parameters | Auth     | Description                                             |
-|-----------|--------|------------|----------|---------------------------------------------------------|
-| /campsite | GET    | -          | required | Get user's saved campsites with 7 days weather forecast |
+| APIs      | Method | Parameters         | Auth     | Description                                                                                                                                                |
+|-----------|--------|--------------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| /campsite | GET    | weather (optional) | required | Get user's saved campsites with 7 days weather forecast. Optional weather parameter can be: sunny, cloudy and rainy, to filter campsite by current weather |
 
 Possible responses:
 - 200 OK - Array of user's saved campsites with weather forecast
