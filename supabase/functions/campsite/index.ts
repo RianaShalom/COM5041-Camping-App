@@ -95,13 +95,13 @@ app.get('/campsite', async (req: Request): Promise<Response> => {
 	const campsitesWithWeather: CampsiteWithWeather[] = campsites.data.map((camp: CampsiteBasicInfo) => ({
 		...camp,
 		rating: data.find((c: CamperPreferences) => c.campsite_id === camp.id)?.rating || null,
-		weather: campsitesWeather.find((w: WeatherInfo) => w.id === camp.id) || null,
+		weather: campsitesWeather.find((w: WeatherInfo | null) => w?.id === camp.id) || null,
 	}));
 
 	const campsitesByWeather = campsitesWithWeather.filter((c: CampsiteWithWeather) => {
-		if (weather === 'sunny') return c.weather.days[0].weatherCode < 3; // sunny weather codes are 0-2
-		if (weather === 'cloudy') return c.weather.days[0].weatherCode >= 3 && c.weather.days[0].weatherCode <= 48; // cloudy weather codes are 3-48
-		if (weather === 'rainy') return c.weather.days[0].weatherCode >= 51; // weather codes with precipitation are > 50
+		if (weather === 'sunny') return c.weather?.days[0].weatherCode < 3; // sunny weather codes are 0-2
+		if (weather === 'cloudy') return c.weather?.days[0].weatherCode >= 3 && c.weather?.days[0].weatherCode <= 48; // cloudy weather codes are 3-48
+		if (weather === 'rainy') return c.weather?.days[0].weatherCode >= 51; // weather codes with precipitation are > 50
 		if (!weather) return true;
 	});
 
