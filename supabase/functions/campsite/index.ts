@@ -1,6 +1,6 @@
 import { App } from '../_shared/App.ts';
 import { getSupabaseClient, getUserIdAndToken, response } from '../_shared/utils.ts';
-import { CamperPreferences, CampsiteBasicInfo, WeatherInfo } from '../_shared/types.ts';
+import { CamperPreferences, CampsiteBasicInfo, CampsiteWithWeather, WeatherInfo } from '../_shared/types.ts';
 import { getForecast } from '../_shared/openMeteo.ts';
 
 const app = new App();
@@ -61,6 +61,9 @@ app.get('/campsite', async (req: Request): Promise<Response> => {
 	}
 	console.log(`Running GET campsite for user ${userId}...`);
 
+	const weather = new URLSearchParams(req.url.split('?')[1]).get('weather');
+	console.log(`Weather parameter is set to: ${weather}`);
+
 	const { data, error } = await getSupabaseClient(accessToken).from('camper_preferences').select('*').eq(
 		'camper_id',
 		userId,
@@ -89,15 +92,22 @@ app.get('/campsite', async (req: Request): Promise<Response> => {
 		campsites.data.map((c: CampsiteBasicInfo) => getForecast(c.id, c.latitude, c.longitude)),
 	);
 
-	const campsitesWithWeather = campsites.data.map((camp: CampsiteBasicInfo) => ({
+	const campsitesWithWeather: CampsiteWithWeather[] = campsites.data.map((camp: CampsiteBasicInfo) => ({
 		...camp,
 		rating: data.find((c: CamperPreferences) => c.campsite_id === camp.id)?.rating || null,
 		weather: campsitesWeather.find((w: WeatherInfo) => w.id === camp.id) || null,
 	}));
 
+	const campsitesByWeather = campsitesWithWeather.filter((c: CampsiteWithWeather) => {
+		if (weather === 'sunny') return c.weather.days[0].weatherCode < 3; // sunny weather codes are 0-2
+		if (weather === 'cloudy') return c.weather.days[0].weatherCode >= 3 && c.weather.days[0].weatherCode <= 48; // cloudy weather codes are 3-48
+		if (weather === 'rainy') return c.weather.days[0].weatherCode >= 51; // weather codes with precipitation are > 50
+		if (!weather) return true;
+	});
+
 	console.log('Campsites retrieved successfully');
 
-	return response(campsitesWithWeather, 200);
+	return response(campsitesByWeather, 200);
 });
 
 // update user's campsites

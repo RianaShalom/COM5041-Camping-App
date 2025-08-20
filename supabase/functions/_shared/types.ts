@@ -112,6 +112,19 @@ export interface CampsiteBasicInfo {
 	address: string;
 }
 
+export interface CampsiteWithWeather extends CampsiteBasicInfo {
+	rating: number | null;
+	weather: {
+		elevation: number;
+		days: {
+			date: string;
+			weatherCode: number;
+			tempMax: string;
+			tempMin: string;
+		}[];
+	};
+}
+
 export interface CamperPreferences {
 	camper_id: string;
 	campsite_id: string;
