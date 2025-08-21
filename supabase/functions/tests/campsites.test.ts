@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { handler } from '../campsite/index.ts';
+import { handler } from '../campsites/index.ts';
 import * as utils from '../_shared/utils.ts';
 import * as weather from '../_shared/openMeteo.ts';
 
 describe('Campsite route handler', () => {
-	it('should return expected result for valid input on POST /campsite', async () => {
+	it('should return expected result for valid input on POST /campsites', async () => {
 		// Arrange
-		const event1 = new Request('http://my-url/campsite', {
+		const event1 = new Request('http://my-url/campsites', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({}),
@@ -24,7 +24,7 @@ describe('Campsite route handler', () => {
 		vi.spyOn(utils, 'getSupabaseClient').mockImplementation(() => ({
 			from: () => ({ upsert: () => ({ select: spySelect }) }),
 		}));
-		const event2 = new Request('http://my-url/campsite', {
+		const event2 = new Request('http://my-url/campsites', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -54,12 +54,12 @@ describe('Campsite route handler', () => {
 		expect(json).toEqual({ status: 'Campsites added successfully' });
 	});
 
-	it('should return expected result for valid input on GET /campsite', async () => {
+	it('should return expected result for valid input on GET /campsites', async () => {
 		// Arrange
 		vi.spyOn(weather, 'getForecast').mockResolvedValue({
 			id: 'campsite-1',
 			elevation: 100,
-			days: { date: 'today', weatherCode: 13, tempMax: 15, tempMin: 4 },
+			days: [{ date: 'today', weatherCode: 13, tempMax: 15, tempMin: 4 }],
 		});
 		const spySelectEq = vi.fn().mockResolvedValue({ data: [{ campsite_id: 'campsite-1' }], error: null });
 		const spySelectIn = vi.fn().mockResolvedValue({
@@ -76,7 +76,7 @@ describe('Campsite route handler', () => {
 				select: () => ({ eq: spySelectEq, in: spySelectIn }),
 			}),
 		}));
-		const event = new Request('http://my-url/campsite', {
+		const event = new Request('http://my-url/campsites', {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -101,21 +101,39 @@ describe('Campsite route handler', () => {
 				'name': 'Campsite One',
 				'rating': null,
 				'weather': {
-					'days': { 'date': 'today', 'tempMax': 15, 'tempMin': 4, 'weatherCode': 13 },
+					'days': [{ 'date': 'today', 'tempMax': 15, 'tempMin': 4, 'weatherCode': 13 }],
 					'elevation': 100,
 					'id': 'campsite-1',
 				},
 			},
 		]);
+
+		const event2 = new Request('http://my-url/campsites?weather=sunny', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization':
+					'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30',
+			},
+		});
+
+		// Act
+		const result2 = await handler(event2);
+
+		// Assert
+		expect(result2).toBeInstanceOf(Response);
+		expect(result2.status).toBe(200);
+		const json2 = await result2.json();
+		expect(json2).toEqual([]);
 	});
 
-	it('should return expected result for valid input on PUT /campsite', async () => {
+	it('should return expected result for valid input on PUT /campsites', async () => {
 		// Arrange
 		const spyUpdateMatch = vi.fn().mockResolvedValue({});
 		vi.spyOn(utils, 'getSupabaseClient').mockImplementation(() => ({
 			from: () => ({ update: () => ({ match: spyUpdateMatch }) }),
 		}));
-		const event = new Request('http://my-url/campsite', {
+		const event = new Request('http://my-url/campsites', {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json',
@@ -135,13 +153,13 @@ describe('Campsite route handler', () => {
 		expect(json).toEqual({ status: 'Campsite updated successfully' });
 	});
 
-	it('should return expected result for valid input on DELETE /campsite', async () => {
+	it('should return expected result for valid input on DELETE /campsites', async () => {
 		// Arrange
 		const spyDeleteMatch = vi.fn().mockResolvedValue({});
 		vi.spyOn(utils, 'getSupabaseClient').mockImplementation(() => ({
 			from: () => ({ delete: () => ({ match: spyDeleteMatch }) }),
 		}));
-		const event = new Request('http://my-url/campsite?id=campsite-1', {
+		const event = new Request('http://my-url/campsites?id=campsite-1', {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',

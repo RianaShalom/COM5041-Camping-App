@@ -119,9 +119,9 @@ Example response:
 <br><br>
 
 ## User's Campsites
-| APIs      | Method | Parameters         | Auth     | Description                                                                                                                                                |
-|-----------|--------|--------------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| /campsite | GET    | weather (optional) | required | Get user's saved campsites with 7 days weather forecast. Optional weather parameter can be: sunny, cloudy and rainy, to filter campsite by current weather |
+| APIs       | Method | Parameters         | Auth     | Description                                                                                                                                                |
+|------------|--------|--------------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| /campsites | GET    | weather (optional) | required | Get user's saved campsites with 7 days weather forecast. Optional weather parameter can be: sunny, cloudy and rainy, to filter campsite by current weather |
 
 Possible responses:
 - 200 OK - Array of user's saved campsites with weather forecast
@@ -130,7 +130,7 @@ Possible responses:
 
 Example request (TS/JS):
 ```ts
-await fetch('https://hnxfgutvgswxxvzctxto.supabase.co/functions/v1/campsite', {
+await fetch('https://hnxfgutvgswxxvzctxto.supabase.co/functions/v1/campsites', {
   method: 'GET',
   headers: {
     'Authorization': 'Bearer <token>' 
@@ -165,9 +165,9 @@ Example response:
 ```
 <br>
 
-| APIs      | Method | Parameters | Auth     | Description                                  |
-|-----------|--------|------------|----------|----------------------------------------------|
-| /campsite | POST   | -          | required | Save user's campsites after a search request |
+| APIs       | Method | Parameters | Auth     | Description                                  |
+|------------|--------|------------|----------|----------------------------------------------|
+| /campsites | POST   | -          | required | Save user's campsites after a search request |
 
 Possible responses:
 - 200 OK - Campsites added successfully
@@ -177,7 +177,7 @@ Possible responses:
 
 Example request (TS/JS):
 ```ts
-await fetch('https://hnxfgutvgswxxvzctxto.supabase.co/functions/v1/campsite', {
+await fetch('https://hnxfgutvgswxxvzctxto.supabase.co/functions/v1/campsites', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -203,9 +203,9 @@ Example response:
 ```
 <br>
 
-| APIs      | Method | Parameters | Auth     | Description                        |
-|-----------|--------|------------|----------|------------------------------------|
-| /campsite | PUT    | -          | required | Update user's campsite with a rate |
+| APIs       | Method | Parameters | Auth     | Description                        |
+|------------|--------|------------|----------|------------------------------------|
+| /campsites | PUT    | -          | required | Update user's campsite with a rate |
 
 Possible responses:
 - 200 OK - Campsite updated successfully
@@ -215,7 +215,7 @@ Possible responses:
 
 Example request (TS/JS):
 ```ts
-await fetch('https://hnxfgutvgswxxvzctxto.supabase.co/functions/v1/campsite', {
+await fetch('https://hnxfgutvgswxxvzctxto.supabase.co/functions/v1/campsites', {
   method: 'PUT',
   headers: {
     'Content-Type': 'application/json',
@@ -238,9 +238,9 @@ Example response:
 ```
 <br>
 
-| APIs      | Method | Parameters | Auth     | Description                  |
-|-----------|--------|------------|----------|------------------------------|
-| /campsite | DELETE | id         | required | Delete user's saved campsite |
+| APIs       | Method | Parameters | Auth     | Description                  |
+|------------|--------|------------|----------|------------------------------|
+| /campsites | DELETE | id         | required | Delete user's saved campsite |
 
 Possible responses:
 - 200 OK - Campsite deleted successfully
@@ -250,7 +250,7 @@ Possible responses:
 
 Example request (TS/JS):
 ```ts
-await fetch('https://hnxfgutvgswxxvzctxto.supabase.co/functions/v1/campsite?id=campsite-1', {
+await fetch('https://hnxfgutvgswxxvzctxto.supabase.co/functions/v1/campsites?id=campsite-1', {
   method: 'DELETE',
   headers: {
     'Authorization': 'Bearer <token>',

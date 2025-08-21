@@ -6,7 +6,7 @@ import { getForecast } from '../_shared/openMeteo.ts';
 const app = new App();
 
 // add user's campsites
-app.post('/campsite', async (req: Request): Promise<Response> => {
+app.post('/campsites', async (req: Request): Promise<Response> => {
 	const { userId, accessToken, message } = getUserIdAndToken(req);
 	if (!userId || !accessToken) {
 		console.error(message);
@@ -14,7 +14,7 @@ app.post('/campsite', async (req: Request): Promise<Response> => {
 	}
 
 	const { campsite } = await req.json();
-	console.log(`Running POST campsite for user ${userId}...`);
+	console.log(`Running POST campsites for user ${userId}...`);
 	console.log(`Adding ${campsite.length} campsites...`);
 
 	if (!campsite.length) {
@@ -53,13 +53,13 @@ app.post('/campsite', async (req: Request): Promise<Response> => {
 });
 
 // get user's campsites
-app.get('/campsite', async (req: Request): Promise<Response> => {
+app.get('/campsites', async (req: Request): Promise<Response> => {
 	const { userId, accessToken, message } = getUserIdAndToken(req);
 	if (!userId || !accessToken) {
 		console.error(message);
 		return response(null, 401, message || 'Unauthorized');
 	}
-	console.log(`Running GET campsite for user ${userId}...`);
+	console.log(`Running GET campsites for user ${userId}...`);
 
 	const weather = new URLSearchParams(req.url.split('?')[1]).get('weather');
 	console.log(`Weather parameter is set to: ${weather}`);
@@ -111,13 +111,13 @@ app.get('/campsite', async (req: Request): Promise<Response> => {
 });
 
 // update user's campsites
-app.put('/campsite', async (req: Request): Promise<Response> => {
+app.put('/campsites', async (req: Request): Promise<Response> => {
 	const { userId, accessToken, message } = getUserIdAndToken(req);
 	if (!userId || !accessToken) {
 		console.error(message);
 		return response(null, 401, message || 'Unauthorized');
 	}
-	console.log(`Running PUT campsite for user ${userId}...`);
+	console.log(`Running PUT campsites for user ${userId}...`);
 
 	const campsite = await req.json();
 	if (!campsite || !campsite.id || !campsite.rating) {
@@ -142,13 +142,13 @@ app.put('/campsite', async (req: Request): Promise<Response> => {
 });
 
 // delete user's campsites
-app.delete('/campsite', async (req: Request): Promise<Response> => {
+app.delete('/campsites', async (req: Request): Promise<Response> => {
 	const { userId, accessToken, message } = getUserIdAndToken(req);
 	if (!userId || !accessToken) {
 		console.error(message);
 		return response(null, 401, message || 'Unauthorized');
 	}
-	console.log(`Running DELETE campsite for user ${userId}...`);
+	console.log(`Running DELETE campsites for user ${userId}...`);
 
 	const campsiteId = new URLSearchParams(req.url.split('?')[1]).get('id');
 	if (!campsiteId) {
