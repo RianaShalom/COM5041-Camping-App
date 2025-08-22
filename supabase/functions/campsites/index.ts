@@ -44,8 +44,8 @@ app.post('/campsites', async (req: Request): Promise<Response> => {
 		})));
 
 	if (resp.error) {
-		console.log('Error inserting camper preferences', error.message);
-		return response(null, 500, error.message);
+		console.log('Error inserting camper preferences', resp.error.message);
+		return response(null, 500, resp.error.message);
 	}
 
 	console.log('Campsites added successfully');
@@ -89,7 +89,7 @@ app.get('/campsites', async (req: Request): Promise<Response> => {
 	console.log(`Found ${campsites.data.length} campsites for user ${userId}`);
 
 	const campsitesWeather = await Promise.all(
-		campsites.data.map((c: CampsiteBasicInfo) => getForecast(c.id, c.latitude, c.longitude)),
+		campsites.data.map((c: CampsiteBasicInfo) => getForecresp.ast(c.id, c.latitude, c.longitude)),
 	);
 
 	const campsitesWithWeather: CampsiteWithWeather[] = campsites.data.map((camp: CampsiteBasicInfo) => ({

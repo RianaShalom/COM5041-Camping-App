@@ -18,7 +18,7 @@ app.post('/auth/login', async (req: Request): Promise<Response> => {
 
 app.post('/auth/signup', async (req: Request): Promise<Response> => {
 	const { email, password } = await req.json();
-	console.log(`Signin up ${email}...`);
+	console.log(`Signing up ${email}...`);
 
 	const pwdRegex = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
 	if (!pwdRegex.test(password)) {
@@ -32,7 +32,7 @@ app.post('/auth/signup', async (req: Request): Promise<Response> => {
 
 	const { error } = await getSupabaseClient().auth.signUp({ email, password });
 	if (error) {
-		console.error('Error signin in:', error.message);
+		console.error('Error signing in:', error.message);
 		return response(null, 401, error.message);
 	}
 
