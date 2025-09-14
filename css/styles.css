@@ -2,12 +2,12 @@
    GLOBAL STYLES & LAYOUT
    =========================== */
 
-/* Base body styling with gradient background */
+/* Base body styling with pastel green gradient background */
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     margin: 0;
     padding: 20px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 50%, #e0f2e0 100%);
     min-height: 100vh;
     color: #333;
 }

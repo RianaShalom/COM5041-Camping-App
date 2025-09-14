@@ -26,7 +26,10 @@ function updateUserStatus() {
         `;
         favBtn.classList.remove('hidden');
     } else {
-        userStatus.innerHTML = `<button id="authBtn">Login</button>`;
+        userStatus.innerHTML = `
+            <span class="user-email" style="color: #6c757d;">Logged out</span>
+            <button id="authBtn">Login</button>
+        `;
         favBtn.classList.add('hidden');
     }
     
@@ -139,4 +142,6 @@ function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('userEmail');
     updateUserStatus();
+    // Refresh the page to reset the app state
+    window.location.reload();
 }
