@@ -31,16 +31,17 @@ popup.addEventListener('click', (e) => {
     if (e.target === popup) popup.classList.add('hidden');
 });
 
-// Switch between login/signup
-switchLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    isSignup = !isSignup;
-    authTitle.textContent = isSignup ? 'Sign Up' : 'Login';
-    authSubmit.textContent = isSignup ? 'Sign Up' : 'Login';
-    authSwitch.innerHTML = isSignup 
-        ? 'Have an account? <a href="#" id="switchLink">Login</a>'
-        : 'Don\'t have an account? <a href="#" id="switchLink">Sign up</a>';
-    document.getElementById('switchLink').addEventListener('click', arguments.callee);
+// Switch between login/signup using event delegation
+authSwitch.addEventListener('click', (e) => {
+    if (e.target.id === 'switchLink') {
+        e.preventDefault();
+        isSignup = !isSignup;
+        authTitle.textContent = isSignup ? 'Sign Up' : 'Login';
+        authSubmit.textContent = isSignup ? 'Sign Up' : 'Login';
+        authSwitch.innerHTML = isSignup 
+            ? 'Have an account? <a href="#" id="switchLink">Login</a>'
+            : 'Don\'t have an account? <a href="#" id="switchLink">Sign up</a>';
+    }
 });
 
 // Handle auth form
