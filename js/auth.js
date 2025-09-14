@@ -19,14 +19,18 @@ updateUserStatus();
 
 // Update user status display
 function updateUserStatus() {
+    const favBtn = document.getElementById('favoritesBtn');
+    
     if (token && userEmail) {
         userStatus.innerHTML = `
             <span class="user-email">Welcome, ${userEmail}</span>
             <button id="authBtn">Logout</button>
         `;
+        favBtn.classList.remove('hidden');
         document.getElementById('authBtn').addEventListener('click', handleAuthClick);
     } else {
         userStatus.innerHTML = `<button id="authBtn">Login</button>`;
+        favBtn.classList.add('hidden');
         document.getElementById('authBtn').addEventListener('click', handleAuthClick);
     }
 }

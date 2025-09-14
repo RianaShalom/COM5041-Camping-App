@@ -10,8 +10,11 @@
     <div class="container">
         <div class="header">
             <h1>CampFinder</h1>
-            <div class="user-status" id="userStatus">
-                <button id="authBtn">Login</button>
+            <div class="nav-buttons">
+                <button id="favoritesBtn" class="nav-btn hidden">My Favorites</button>
+                <div class="user-status" id="userStatus">
+                    <button id="authBtn">Login</button>
+                </div>
             </div>
         </div>
         
@@ -21,6 +24,11 @@
         </form>
         
         <div id="results"></div>
+        
+        <div id="favorites" class="hidden">
+            <h2>My Favorite Campsites</h2>
+            <div id="favoritesList"></div>
+        </div>
     </div>
     
     <!-- Auth Popup -->
@@ -40,6 +48,7 @@
     
     <script src="js/config.js"></script>
     <script src="js/search.js"></script>
+    <script src="js/favorites.js"></script>
     <script src="js/auth.js"></script>
 </body>
 </html>
