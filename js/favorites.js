@@ -65,12 +65,77 @@ async function loadFavorites(weatherFilter = '') {
     }
 }
 
+// Helper function to get weather icon based on weather code
+function getWeatherIcon(weatherCode) {
+    // WMO Weather interpretation codes mapping to icon filenames
+    const weatherCodeMap = {
+        0: 'clear',                          // Clear sky
+        1: 'mostly-clear',                   // Mainly clear
+        2: 'partly-cloudy',                  // Partly cloudy
+        3: 'overcast',                       // Overcast
+        45: 'fog',                           // Fog
+        48: 'rime-fog',                      // Depositing rime fog
+        51: 'light-drizzle',                 // Drizzle: Light intensity
+        53: 'moderate-drizzle',              // Drizzle: Moderate intensity
+        55: 'dense-drizzle',                 // Drizzle: Dense intensity
+        56: 'light-freezing-drizzle',        // Freezing Drizzle: Light intensity
+        57: 'dense-freezing-drizzle',        // Freezing Drizzle: Dense intensity
+        61: 'light-rain',                    // Rain: Slight intensity
+        63: 'moderate-rain',                 // Rain: Moderate intensity
+        65: 'heavy-rain',                    // Rain: Heavy intensity
+        66: 'light-freezing-rain',           // Freezing Rain: Light intensity
+        67: 'heavy-freezing-rain',           // Freezing Rain: Heavy intensity
+        71: 'slight-snowfall',               // Snow fall: Slight intensity
+        73: 'moderate-snowfall',             // Snow fall: Moderate intensity
+        75: 'heavy-snowfall',                // Snow fall: Heavy intensity
+        77: 'snowflake',                     // Snow grains
+        80: 'light-rain',                    // Rain showers: Slight
+        81: 'moderate-rain',                 // Rain showers: Moderate
+        82: 'heavy-rain',                    // Rain showers: Violent
+        85: 'slight-snowfall',               // Snow showers: Slight
+        86: 'heavy-snowfall',                // Snow showers: Heavy
+        95: 'thunderstorm',                  // Thunderstorm: Slight or moderate
+        96: 'thunderstorm-with-hail',        // Thunderstorm with slight hail
+        99: 'thunderstorm-with-hail'         // Thunderstorm with heavy hail
+    };
+    
+    return weatherCodeMap[weatherCode] || 'clear'; // Default to clear if code not found
+}
+
 // Helper function to get weather description
 function getWeatherDescription(weatherCode) {
-    if (weatherCode >= 0 && weatherCode <= 2) return 'Sunny';
-    if (weatherCode >= 3 && weatherCode <= 48) return 'Cloudy';
-    if (weatherCode >= 51) return 'Rainy';
-    return 'Unknown';
+    const weatherDescriptions = {
+        0: 'Clear sky',
+        1: 'Mainly clear',
+        2: 'Partly cloudy',
+        3: 'Overcast',
+        45: 'Fog',
+        48: 'Depositing rime fog',
+        51: 'Light drizzle',
+        53: 'Moderate drizzle',
+        55: 'Dense drizzle',
+        56: 'Light freezing drizzle',
+        57: 'Dense freezing drizzle',
+        61: 'Slight rain',
+        63: 'Moderate rain',
+        65: 'Heavy rain',
+        66: 'Light freezing rain',
+        67: 'Heavy freezing rain',
+        71: 'Slight snow fall',
+        73: 'Moderate snow fall',
+        75: 'Heavy snow fall',
+        77: 'Snow grains',
+        80: 'Slight rain showers',
+        81: 'Moderate rain showers',
+        82: 'Violent rain showers',
+        85: 'Slight snow showers',
+        86: 'Heavy snow showers',
+        95: 'Thunderstorm',
+        96: 'Thunderstorm with slight hail',
+        99: 'Thunderstorm with heavy hail'
+    };
+    
+    return weatherDescriptions[weatherCode] || 'Unknown weather';
 }
 
 // Render favorites list with rating dropdowns and remove buttons
@@ -91,7 +156,8 @@ function renderFavorites() {
         if (showWeatherInfo && c.weather?.days?.[0]) {
             const today = c.weather.days[0];
             const weatherDesc = getWeatherDescription(today.weatherCode);
-            weatherDisplay = `<p><strong>Weather:</strong> ${weatherDesc} (${today.tempMin} - ${today.tempMax})</p>`;
+            const iconName = getWeatherIcon(today.weatherCode);
+            weatherDisplay = `<p><strong>Weather:</strong> <img src="icons/${iconName}@4x.png" alt="${weatherDesc}" class="weather-icon"> ${weatherDesc} (${today.tempMin} - ${today.tempMax}) <small class="weather-code">Code: ${today.weatherCode}</small></p>`;
         } else if (showWeatherInfo) {
             weatherDisplay = `<p><strong>Weather:</strong> No data available</p>`;
         }

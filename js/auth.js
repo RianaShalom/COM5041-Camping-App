@@ -116,10 +116,7 @@ authForm.addEventListener('submit', async (e) => {
                 
                 showMessage('Successfully logged in!', 'success');
                 setTimeout(() => {
-                    popup.classList.add('hidden');
-                    authForm.reset();
-                    updateUserStatus();
-                    showMessage('', 'clear');
+                    window.location.reload(); // Refresh the page
                 }, 1000);
             }
         } else {

@@ -97,6 +97,21 @@ button:hover {
     border-radius: 4px;
 }
 
+/* Weather icon styling */
+.weather-icon {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+/* Weather code styling */
+.weather-code {
+    font-size: 11px;
+    color: #666;
+    margin-left: 10px;
+}
+
 #results {
     margin-top: 20px;
 }
