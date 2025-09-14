@@ -3,13 +3,11 @@ let token = localStorage.getItem('token');
 let userEmail = localStorage.getItem('userEmail');
 
 // DOM elements
-const authBtn = document.getElementById('authBtn');
 const userStatus = document.getElementById('userStatus');
 const popup = document.getElementById('authPopup');
 const authForm = document.getElementById('authForm');
 const authTitle = document.getElementById('authTitle');
 const authSubmit = document.getElementById('authSubmit');
-const switchLink = document.getElementById('switchLink');
 const authSwitch = document.getElementById('authSwitch');
 const authMessage = document.getElementById('authMessage');
 const closeBtn = document.querySelector('.close');
@@ -27,12 +25,13 @@ function updateUserStatus() {
             <button id="authBtn">Logout</button>
         `;
         favBtn.classList.remove('hidden');
-        document.getElementById('authBtn').addEventListener('click', handleAuthClick);
     } else {
         userStatus.innerHTML = `<button id="authBtn">Login</button>`;
         favBtn.classList.add('hidden');
-        document.getElementById('authBtn').addEventListener('click', handleAuthClick);
     }
+    
+    // Attach event listener to the new button
+    document.getElementById('authBtn').addEventListener('click', handleAuthClick);
 }
 
 // Handle auth button click
@@ -40,7 +39,7 @@ function handleAuthClick() {
     if (token) {
         logout();
     } else {
-        showMessage('', 'clear'); // Clear any previous messages
+        showMessage('', 'clear');
         popup.classList.remove('hidden');
     }
 }
@@ -116,7 +115,7 @@ authForm.addEventListener('submit', async (e) => {
                 
                 showMessage('Successfully logged in!', 'success');
                 setTimeout(() => {
-                    window.location.reload(); // Refresh the page
+                    window.location.reload();
                 }, 1000);
             }
         } else {

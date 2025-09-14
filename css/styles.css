@@ -112,6 +112,11 @@ button:hover {
     margin-left: 10px;
 }
 
+/* Remove button styling */
+.remove-btn {
+    background: #dc3545 !important;
+}
+
 #results {
     margin-top: 20px;
 }

@@ -2,6 +2,7 @@ document.getElementById('searchForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const location = document.getElementById('location').value.trim();
     const results = document.getElementById('results');
+    const token = localStorage.getItem('token');
     
     if (!location) return;
     
@@ -20,7 +21,8 @@ document.getElementById('searchForm').addEventListener('submit', async (e) => {
                     ${token ? `<button onclick="saveCampsite('${c.id}', '${c.name}', ${c.latitude}, ${c.longitude}, '${c.address}')">⭐ Save</button>` : '<p><em>Login to save campsites</em></p>'}
                 </div>`).join('')
             : 'No results';
-    } catch {
+    } catch (error) {
+        console.error('Search error:', error);
         results.innerHTML = 'Error';
     }
 });
@@ -56,7 +58,8 @@ async function saveCampsite(id, name, latitude, longitude, address) {
         } else {
             alert('Failed to save campsite');
         }
-    } catch {
+    } catch (error) {
+        console.error('Error saving campsite:', error);
         alert('Something went wrong');
     }
 }

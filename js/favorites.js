@@ -9,12 +9,6 @@ document.getElementById('favoritesBtn').addEventListener('click', () => {
     toggleView();
 });
 
-// Weather filter event listener
-document.getElementById('weatherFilter').addEventListener('change', (e) => {
-    currentWeatherFilter = e.target.value;
-    loadFavorites(currentWeatherFilter);
-});
-
 // Switch view and update UI
 function toggleView() {
     const isSearch = currentView === 'search';
@@ -30,7 +24,21 @@ function toggleView() {
     elements.favorites.classList.toggle('hidden', isSearch);
     elements.favBtn.textContent = isSearch ? 'My Favorites' : 'Back to Search';
     
-    if (!isSearch) loadFavorites();
+    if (!isSearch) {
+        currentWeatherFilter = '';
+        const weatherFilter = document.getElementById('weatherFilter');
+        if (weatherFilter) {
+            weatherFilter.value = '';
+            if (!weatherFilter.hasAttribute('data-listener-attached')) {
+                weatherFilter.addEventListener('change', (e) => {
+                    currentWeatherFilter = e.target.value;
+                    loadFavorites(currentWeatherFilter);
+                });
+                weatherFilter.setAttribute('data-listener-attached', 'true');
+            }
+        }
+        loadFavorites();
+    }
 }
 
 // Fetch and display user's saved campsites
@@ -41,7 +49,6 @@ async function loadFavorites(weatherFilter = '') {
     const favoritesList = document.getElementById('favoritesList');
     favoritesList.innerHTML = 'Loading...';
     
-    // Update current filter
     currentWeatherFilter = weatherFilter;
     
     try {
@@ -60,14 +67,14 @@ async function loadFavorites(weatherFilter = '') {
         } else {
             favoritesList.innerHTML = 'Failed to load favorites';
         }
-    } catch {
+    } catch (error) {
+        console.error('Error loading favorites:', error);
         favoritesList.innerHTML = 'Something went wrong';
     }
 }
 
 // Helper function to get weather icon based on weather code
 function getWeatherIcon(weatherCode) {
-    // WMO Weather interpretation codes mapping to icon filenames
     const weatherCodeMap = {
         0: 'clear',                          // Clear sky
         1: 'mostly-clear',                   // Mainly clear
@@ -99,7 +106,7 @@ function getWeatherIcon(weatherCode) {
         99: 'thunderstorm-with-hail'         // Thunderstorm with heavy hail
     };
     
-    return weatherCodeMap[weatherCode] || 'clear'; // Default to clear if code not found
+    return weatherCodeMap[weatherCode] || 'clear';
 }
 
 // Helper function to get weather description
@@ -147,7 +154,6 @@ function renderFavorites() {
         return;
     }
     
-    // Show weather info only when not filtering (showing all weather)
     const showWeatherInfo = !currentWeatherFilter;
     
     favoritesList.innerHTML = campsitesData.map((c, i) => {
@@ -174,13 +180,12 @@ function renderFavorites() {
                         <option value="">Rate (1-5)</option>
                         ${[1,2,3,4,5].map(n => `<option value="${n}" ${c.rating === n ? 'selected' : ''}>${'⭐'.repeat(n)} ${n}</option>`).join('')}
                     </select>
-                    <button class="remove-btn" data-index="${i}" style="background: #dc3545;">Remove</button>
+                    <button class="remove-btn" data-index="${i}">Remove</button>
                 </div>
             </div>
         `;
     }).join('');
     
-    // Attach event listeners for rating and removal
     attachEventListeners();
 }
 
@@ -241,7 +246,8 @@ async function updateRating(id, rating) {
         }
         
         return true;
-    } catch {
+    } catch (error) {
+        console.error('Error updating rating:', error);
         alert('Rating failed: Network error');
         return false;
     }
@@ -258,7 +264,8 @@ async function deleteCampsite(id) {
         });
         
         return res.ok;
-    } catch {
+    } catch (error) {
+        console.error('Error deleting campsite:', error);
         alert('Removal failed');
         return false;
     }
