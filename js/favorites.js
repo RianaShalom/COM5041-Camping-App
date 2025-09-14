@@ -1,11 +1,18 @@
 // Favorites management with view switching
 let currentView = 'search';
 let campsitesData = []; // Cache for current campsites
+let currentWeatherFilter = ''; // Track current weather filter
 
 // Toggle between search and favorites views
 document.getElementById('favoritesBtn').addEventListener('click', () => {
     currentView = currentView === 'search' ? 'favorites' : 'search';
     toggleView();
+});
+
+// Weather filter event listener
+document.getElementById('weatherFilter').addEventListener('change', (e) => {
+    currentWeatherFilter = e.target.value;
+    loadFavorites(currentWeatherFilter);
 });
 
 // Switch view and update UI
@@ -27,15 +34,23 @@ function toggleView() {
 }
 
 // Fetch and display user's saved campsites
-async function loadFavorites() {
+async function loadFavorites(weatherFilter = '') {
     const token = localStorage.getItem('token');
     if (!token) return;
     
     const favoritesList = document.getElementById('favoritesList');
     favoritesList.innerHTML = 'Loading...';
     
+    // Update current filter
+    currentWeatherFilter = weatherFilter;
+    
     try {
-        const res = await fetch(`${CONFIG.API_BASE}/campsites`, {
+        let url = `${CONFIG.API_BASE}/campsites`;
+        if (weatherFilter) {
+            url += `?weather=${weatherFilter}`;
+        }
+        
+        const res = await fetch(url, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -50,6 +65,14 @@ async function loadFavorites() {
     }
 }
 
+// Helper function to get weather description
+function getWeatherDescription(weatherCode) {
+    if (weatherCode >= 0 && weatherCode <= 2) return 'Sunny';
+    if (weatherCode >= 3 && weatherCode <= 48) return 'Cloudy';
+    if (weatherCode >= 51) return 'Rainy';
+    return 'Unknown';
+}
+
 // Render favorites list with rating dropdowns and remove buttons
 function renderFavorites() {
     const favoritesList = document.getElementById('favoritesList');
@@ -59,22 +82,37 @@ function renderFavorites() {
         return;
     }
     
-    favoritesList.innerHTML = campsitesData.map((c, i) => `
-        <div class="campsite">
-            <h3>${c.name}</h3>
-            <p>${c.address}</p>
-            <p><strong>Coordinates:</strong> ${c.latitude}, ${c.longitude}</p>
-            <p><strong>Rating:</strong> ${c.rating ? '⭐'.repeat(c.rating) : 'Not rated'}</p>
-            ${c.weather?.days?.[0] ? `<p><strong>Today:</strong> ${c.weather.days[0].tempMin} - ${c.weather.days[0].tempMax}</p>` : ''}
-            <div class="campsite-actions">
-                <select class="rating-select" data-index="${i}">
-                    <option value="">Rate (1-5)</option>
-                    ${[1,2,3,4,5].map(n => `<option value="${n}" ${c.rating === n ? 'selected' : ''}>${'⭐'.repeat(n)} ${n}</option>`).join('')}
-                </select>
-                <button class="remove-btn" data-index="${i}" style="background: #dc3545;">Remove</button>
+    // Show weather info only when not filtering (showing all weather)
+    const showWeatherInfo = !currentWeatherFilter;
+    
+    favoritesList.innerHTML = campsitesData.map((c, i) => {
+        let weatherDisplay = '';
+        
+        if (showWeatherInfo && c.weather?.days?.[0]) {
+            const today = c.weather.days[0];
+            const weatherDesc = getWeatherDescription(today.weatherCode);
+            weatherDisplay = `<p><strong>Weather:</strong> ${weatherDesc} (${today.tempMin} - ${today.tempMax})</p>`;
+        } else if (showWeatherInfo) {
+            weatherDisplay = `<p><strong>Weather:</strong> No data available</p>`;
+        }
+        
+        return `
+            <div class="campsite">
+                <h3>${c.name}</h3>
+                <p>${c.address}</p>
+                <p><strong>Coordinates:</strong> ${c.latitude}, ${c.longitude}</p>
+                <p><strong>Rating:</strong> ${c.rating ? '⭐'.repeat(c.rating) : 'Not rated'}</p>
+                ${weatherDisplay}
+                <div class="campsite-actions">
+                    <select class="rating-select" data-index="${i}">
+                        <option value="">Rate (1-5)</option>
+                        ${[1,2,3,4,5].map(n => `<option value="${n}" ${c.rating === n ? 'selected' : ''}>${'⭐'.repeat(n)} ${n}</option>`).join('')}
+                    </select>
+                    <button class="remove-btn" data-index="${i}" style="background: #dc3545;">Remove</button>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
     
     // Attach event listeners for rating and removal
     attachEventListeners();

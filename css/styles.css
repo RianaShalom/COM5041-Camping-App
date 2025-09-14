@@ -78,6 +78,25 @@ button:hover {
     background: #0056b3;
 }
 
+/* Weather filter styling */
+.weather-filters {
+    margin: 20px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.weather-filters label {
+    margin-right: 10px;
+}
+
+#weatherFilter {
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
 #results {
     margin-top: 20px;
 }
