@@ -3,7 +3,31 @@ let currentView = 'search';
 let campsitesData = []; // Cache for current campsites
 let currentWeatherFilter = ''; // Track current weather filter
 
-// Toggle between search and favorites views
+// Toggle between search and favorites v// Handle campsite removal
+async function handleRemoval(e) {
+    const campsite = campsitesData[e.target.dataset.index];
+    
+    if (confirm(`Remove ${campsite.name} from favorites?`) && await deleteCampsite(campsite.id)) {
+        alert(`✅ Removed ${campsite.name}`);
+        loadFavorites();
+    }
+}
+
+// Handle forecast toggle
+function handleForecastToggle(e) {
+    const index = e.target.dataset.index;
+    const forecastDiv = document.getElementById(`forecast-${index}`);
+    const button = e.target;
+    
+    if (forecastDiv.classList.contains('hidden')) {
+        forecastDiv.classList.remove('hidden');
+        button.textContent = 'Hide 7-Day Forecast';
+    } else {
+        forecastDiv.classList.add('hidden');
+        button.textContent = 'Show 7-Day Forecast';
+    }
+}
+
 document.getElementById('favoritesBtn').addEventListener('click', () => {
     currentView = currentView === 'search' ? 'favorites' : 'search';
     toggleView();
@@ -41,7 +65,43 @@ function toggleView() {
     }
 }
 
-// Fetch and display user's saved campsites
+// Categorize weather codes into groups
+function getWeatherCategory(weatherCode) {
+    if (weatherCode === undefined || weatherCode === null) return null;
+    
+    // Clear/Sunny (codes 0-3)
+    if (weatherCode >= 0 && weatherCode <= 3) return 'clear';
+    
+    // Fog/Mist (codes 45, 48)
+    if (weatherCode === 45 || weatherCode === 48) return 'fog';
+    
+    // Rainy/Drizzle (codes 51-55, 61-65, 80-82)
+    if ((weatherCode >= 51 && weatherCode <= 55) || 
+        (weatherCode >= 61 && weatherCode <= 65) || 
+        (weatherCode >= 80 && weatherCode <= 82)) return 'rainy';
+    
+    // Snow/Sleet (codes 71-77, 85-86)
+    if ((weatherCode >= 71 && weatherCode <= 77) || 
+        (weatherCode >= 85 && weatherCode <= 86)) return 'snow';
+    
+    // Thunderstorms (codes 95-99)
+    if (weatherCode >= 95 && weatherCode <= 99) return 'thunderstorm';
+    
+    // Default to cloudy for other codes
+    return 'cloudy';
+}
+
+// Filter campsites by weather category
+function filterCampsitesByWeather(campsites, weatherFilter) {
+    if (!weatherFilter) return campsites;
+    
+    return campsites.filter(campsite => {
+        const weatherCode = campsite.weather?.days[0]?.weatherCode;
+        const category = getWeatherCategory(weatherCode);
+        return category === weatherFilter;
+    });
+}
+
 async function loadFavorites(weatherFilter = '') {
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -52,17 +112,16 @@ async function loadFavorites(weatherFilter = '') {
     currentWeatherFilter = weatherFilter;
     
     try {
-        let url = `${CONFIG.API_BASE}/campsites`;
-        if (weatherFilter) {
-            url += `?weather=${weatherFilter}`;
-        }
+        // Always fetch all campsites, filter on frontend
+        const url = `${CONFIG.API_BASE}/campsites`;
         
         const res = await fetch(url, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         
         if (res.ok) {
-            campsitesData = await res.json();
+            const allCampsites = await res.json();
+            campsitesData = filterCampsitesByWeather(allCampsites, weatherFilter);
             renderFavorites();
         } else {
             favoritesList.innerHTML = 'Failed to load favorites';
@@ -154,17 +213,27 @@ function renderFavorites() {
         return;
     }
     
-    const showWeatherInfo = !currentWeatherFilter;
-    
     favoritesList.innerHTML = campsitesData.map((c, i) => {
         let weatherDisplay = '';
         
-        if (showWeatherInfo && c.weather?.days?.[0]) {
+        if (c.weather?.days?.[0]) {
             const today = c.weather.days[0];
             const weatherDesc = getWeatherDescription(today.weatherCode);
             const iconName = getWeatherIcon(today.weatherCode);
-            weatherDisplay = `<p><strong>Weather:</strong> <img src="icons/${iconName}@4x.png" alt="${weatherDesc}" class="weather-icon"> ${weatherDesc} (${today.tempMin} - ${today.tempMax}) <small class="weather-code">Code: ${today.weatherCode}</small></p>`;
-        } else if (showWeatherInfo) {
+            weatherDisplay = `
+                <p><strong>Weather:</strong> <img src="icons/${iconName}@4x.png" alt="${weatherDesc}" class="weather-icon"> ${weatherDesc} (${today.tempMin} - ${today.tempMax}) <small class="weather-code">Code: ${today.weatherCode}</small></p>
+                <button class="forecast-toggle" data-index="${i}">Show 7-Day Forecast</button>
+                <div class="extended-forecast hidden" id="forecast-${i}">
+                    ${c.weather.days.slice(1, 7).map((day, dayIndex) => `
+                        <div class="forecast-day">
+                            <span class="forecast-date">${new Date(day.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                            <img src="icons/${getWeatherIcon(day.weatherCode)}@4x.png" alt="${getWeatherDescription(day.weatherCode)}" class="forecast-icon">
+                            <span class="forecast-temps">${day.tempMin} - ${day.tempMax}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        } else {
             weatherDisplay = `<p><strong>Weather:</strong> No data available</p>`;
         }
         
@@ -197,6 +266,10 @@ function attachEventListeners() {
     
     document.querySelectorAll('.remove-btn').forEach(btn => {
         btn.addEventListener('click', handleRemoval);
+    });
+    
+    document.querySelectorAll('.forecast-toggle').forEach(btn => {
+        btn.addEventListener('click', handleForecastToggle);
     });
 }
 

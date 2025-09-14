@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>CampFinder</h1>
+            <h1>Camp<span class="green-text">Finder</span></h1>
             <div class="nav-buttons">
                 <button id="favoritesBtn" class="nav-btn hidden">My Favorites</button>
                 <div class="user-status" id="userStatus">
@@ -32,9 +32,12 @@
                 <label>Filter by weather:</label>
                 <select id="weatherFilter">
                     <option value="">All Weather</option>
-                    <option value="sunny">Sunny</option>
-                    <option value="cloudy">Cloudy</option>
-                    <option value="rainy">Rainy</option>
+                    <option value="clear">Clear/Sunny</option>
+                    <option value="cloudy">Cloudy/Overcast</option>
+                    <option value="rainy">Rainy/Drizzle</option>
+                    <option value="thunderstorm">Thunderstorms</option>
+                    <option value="snow">Snow/Sleet</option>
+                    <option value="fog">Fog/Mist</option>
                 </select>
             </div>
             
