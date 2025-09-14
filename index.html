@@ -8,9 +8,12 @@
 </head>
 <body>
     <div class="container">
-        <h1>CampFinder</h1>
-        
-        <button id="authBtn">Login</button>
+        <div class="header">
+            <h1>CampFinder</h1>
+            <div class="user-status" id="userStatus">
+                <button id="authBtn">Login</button>
+            </div>
+        </div>
         
         <form id="searchForm">
             <input type="text" id="location" placeholder="Enter location">
@@ -25,6 +28,7 @@
         <div class="popup-content">
             <span class="close">&times;</span>
             <h2 id="authTitle">Login</h2>
+            <div id="authMessage" class="message hidden"></div>
             <form id="authForm">
                 <input type="email" id="email" placeholder="Email" required>
                 <input type="password" id="password" placeholder="Password" required>
