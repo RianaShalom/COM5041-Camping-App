@@ -222,10 +222,8 @@ await fetch('https://hnxfgutvgswxxvzctxto.supabase.co/functions/v1/campsites', {
     'Authorization': 'Bearer <token>',
   },
   body: JSON.stringify({
-    campsite: [{
-      id: "campsite-1",
-      rating: 3, // rating from 1 to 5
-    }],
+    id: "campsite-1",
+    rating: 3, // rating from 1 to 5
   }),
 })
 ```

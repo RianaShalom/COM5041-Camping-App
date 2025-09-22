@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampFinder - Search</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Camp<span class="green-text">Finder</span></h1>
+            <div class="nav-buttons">
+                <button id="favoritesBtn" class="nav-btn hidden">My Favorites</button>
+                <div class="user-status" id="userStatus">
+                    <button id="authBtn">Login</button>
+                </div>
+            </div>
+        </div>
+        
+        <form id="searchForm">
+            <input type="text" id="location" placeholder="Enter location">
+            <button type="submit">Search</button>
+        </form>
+        
+        <div id="results"></div>
+        
+        <div id="favorites" class="hidden">
+            <h2>My Favorite Campsites</h2>
+            
+            <div class="weather-filters">
+                <label>Filter by weather:</label>
+                <select id="weatherFilter">
+                    <option value="">All Weather</option>
+                    <option value="clear">Clear/Sunny</option>
+                    <option value="cloudy">Cloudy/Overcast</option>
+                    <option value="rainy">Rainy/Drizzle</option>
+                    <option value="thunderstorm">Thunderstorms</option>
+                    <option value="snow">Snow/Sleet</option>
+                    <option value="fog">Fog/Mist</option>
+                </select>
+            </div>
+            
+            <div id="favoritesList"></div>
+        </div>
+    </div>
+    
+    <!-- Auth Popup -->
+    <div id="authPopup" class="popup hidden">
+        <div class="popup-content">
+            <span class="close">&times;</span>
+            <h2 id="authTitle">Login</h2>
+            <div id="authMessage" class="message hidden"></div>
+            <form id="authForm">
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit" id="authSubmit">Login</button>
+            </form>
+            <p id="authSwitch">Don't have an account? <a href="#" id="switchLink">Sign up</a></p>
+        </div>
+    </div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/favorites.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
